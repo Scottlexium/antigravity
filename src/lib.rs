@@ -17,14 +17,30 @@ impl zed::Extension for AntigravityExtension {
         _worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
         
-        // In a production extension, this would download a bundled binary.
-        // For this custom setup, we use the absolute paths to the python environment.
-        let python_path = "/Users/scottlexium/projects/zed-antigravity-extension/daemon/venv/bin/python".to_string();
-        let script_path = "/Users/scottlexium/projects/zed-antigravity-extension/daemon/server.py".to_string();
+        // This bash script automatically provisions the Python environment on the user's machine
+        // inside a hidden folder in their home directory, making the extension portable and publishable!
+        let bootstrap_script = "
+# Ensure our hidden state directory exists
+mkdir -p \"$HOME/.zed_antigravity\"
+cd \"$HOME/.zed_antigravity\"
+
+# If the virtual environment doesn't exist, create it and install dependencies
+if [ ! -d \"venv\" ]; then
+    echo \"Initializing Python environment for Antigravity...\" >&2
+    python3 -m venv venv
+    venv/bin/pip install fastapi uvicorn google-antigravity python-dotenv
+    
+    # Download the latest daemon script straight from your GitHub repository!
+    curl -sL https://raw.githubusercontent.com/Scottlexium/antigravity/master/daemon/server.py -o server.py
+fi
+
+# Execute the local proxy daemon natively
+exec venv/bin/python server.py
+".to_string();
         
         Ok(zed::Command {
-            command: python_path,
-            args: vec![script_path],
+            command: "bash".to_string(),
+            args: vec!["-c".to_string(), bootstrap_script],
             env: vec![],
         })
     }
