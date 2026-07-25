@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.scottlexium.antigravity</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-c</string>
+        <string>mkdir -p "$HOME/.zed_antigravity"
+cd "$HOME/.zed_antigravity"
+
+# Set up venv and install deps on first run
+if [ ! -d "venv" ]; then
+    python3 -m venv venv
+    venv/bin/pip install --quiet fastapi uvicorn google-antigravity python-dotenv
+fi
+
+# Always use the bundled server.py (copied during install)
+exec venv/bin/python server.py</string>
+    </array>
+
+    <!-- Keep the daemon alive always -->
+    <key>KeepAlive</key>
+    <true/>
+
+    <!-- Start at login -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Log output -->
+    <key>StandardOutPath</key>
+    <string>/tmp/antigravity-daemon.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/antigravity-daemon.log</string>
+</dict>
+</plist>

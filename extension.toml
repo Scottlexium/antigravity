@@ -8,4 +8,4 @@ repository = "https://github.com/scott-lexium/antigravity"
 
 [language_servers.antigravity]
 name = "Antigravity Bridge Daemon"
-language = "Plain Text"
+language = "Markdown"

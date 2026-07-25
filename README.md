@@ -1,36 +1,77 @@
-# Zed Antigravity Extension
+# Antigravity
 
-## The Problem
-Google stopped Gemini support for third-party editors like Zed. Users who want to use Gemini for AI-assisted coding in Zed are left without a native option.
+Antigravity brings Gemini AI into the Zed editor. It runs a lightweight background service on your machine that Zed talks to via its built-in custom AI provider support.
 
-## The Idea
-We will build a Zed extension that leverages the **Antigravity CLI & SDK** to restore Gemini capabilities in Zed. 
+---
 
-Zed handles AI in a few ways:
-1. **AI Providers (Chat/Inline):** Native support for OpenAI-compatible endpoints.
-2. **MCP (Model Context Protocol):** Allows extensions to provide context/tools to the AI.
-3. **Language Servers (LSP):** Standard way to provide autocomplete and diagnostics.
+## How it works
 
-Since Zed extensions can manage the lifecycle of background binaries, our extension will act as a **manager for a local Antigravity Bridge Daemon**.
+A small Python server runs silently in the background on `localhost:8080`. It exposes an OpenAI-compatible API that Zed natively understands. Every chat message you send in Zed's Assistant Panel goes to this server, which forwards it to Google's Gemini via the Antigravity SDK and streams the response back.
 
-### Architecture
-1. **The Rust/Wasm Extension (`src/lib.rs`):**
-   - Runs inside Zed.
-   - Automatically downloads/starts a lightweight local background server (the "Bridge Daemon").
-   - Monitors the daemon's health.
-   
-2. **The Antigravity Bridge Daemon:**
-   - A local HTTP server that exposes an **OpenAI-compatible API** (`/v1/chat/completions`).
-   - Zed will be configured to send its Assistant Panel requests to this daemon.
-   - The daemon intercepts these requests and translates them into **Antigravity SDK / Gemini API** calls.
-   
-3. **MCP Integration (Bonus Phase):**
-   - The extension will also register the daemon as an **MCP Server**.
-   - This allows Zed's AI to use Antigravity's powerful agentic tools (like `agy` tools, codebase scanning, and terminal execution) directly from the Zed chat interface via slash commands.
+The server is managed by macOS's built-in `launchd` service manager, so it starts automatically when you log in and restarts itself if it ever crashes.
 
-## Setup Steps (Future Implementation)
-1. Write the Rust Wasm extension to spawn a local command.
-2. Write the Bridge Daemon (in Rust or Node/Python) that wraps the Antigravity SDK.
-3. Configure Zed's `settings.json` to point the custom OpenAI provider to the daemon's port.
+---
 
+## Installation
 
+Run this in your terminal:
+
+```bash
+curl -sL https://raw.githubusercontent.com/Scottlexium/antigravity/master/install.sh | bash
+```
+
+That's it. The script will:
+- Create a Python environment in `~/.zed_antigravity`
+- Install all dependencies
+- Register the background service so it starts at login
+
+---
+
+## Zed Setup
+
+After running the installer, configure Zed once:
+
+1. Open **Zed Settings** → **AI**
+2. Click **Add Provider** → choose **OpenAI Compatible**
+3. Fill in:
+   - **URL:** `http://127.0.0.1:8080/v1`
+   - **API Key:** Your Gemini API key ([get one here](https://aistudio.google.com/app/apikey))
+   - **Model:** `antigravity-bridge`
+
+Open the Assistant Panel (`Cmd+Shift+A`) and start chatting.
+
+---
+
+## Authentication options
+
+| Method | How |
+|--------|-----|
+| Gemini API Key (Zed UI) | Paste your key into Zed's API Key field |
+| Gemini API Key (terminal) | `export GEMINI_API_KEY=your-key` before starting the service |
+| Google Cloud OAuth | `gcloud auth application-default login` + `export GOOGLE_CLOUD_PROJECT=your-project` |
+
+---
+
+## Uninstall
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.scottlexium.antigravity.plist
+rm ~/Library/LaunchAgents/com.scottlexium.antigravity.plist
+rm -rf ~/.zed_antigravity
+```
+
+---
+
+## Project layout
+
+```
+antigravity/
+├── install.sh                          # One-shot setup script for users
+├── daemon/
+│   ├── server.py                       # The FastAPI proxy server
+│   ├── requirements.txt                # Python dependencies
+│   └── com.scottlexium.antigravity.plist   # macOS launchd service definition
+├── src/lib.rs                          # Zed extension Rust/Wasm core
+├── extension.toml                      # Extension manifest
+└── Cargo.toml
+```
