@@ -1,25 +1,25 @@
 # Antigravity
 
-Gemini in Zed. No subscriptions, no lock-in — just your own API key and the full power of Google's Gemini models running natively inside the editor.
+Gemini in Zed. No subscriptions, no lock-in, just your own API key and the full power of Google's Gemini models running natively inside the editor.
 
-Google removed Gemini support from third-party editors, so this extension brings it back. It runs a small background service on your machine that Zed talks to through its built-in custom AI provider support. From there, everything works exactly like any other AI provider in Zed — inline edits, the assistant panel, the works.
+Google removed Gemini support from third-party editors, so this extension brings it back. It runs a small background service on your machine that Zed talks to through its built-in custom AI provider support. From there, everything works exactly like any other AI provider in Zed: inline edits, the assistant panel, the works.
 
 ---
 
 ## Getting started
 
-### Step 1 — Get a Gemini API key
+### Step 1: Get a Gemini API key
 
 You need a free Gemini API key from Google AI Studio.
 
 1. Go to [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 2. Sign in with your Google account
 3. Click **Create API key**
-4. Copy the key — it'll look something like `AIzaSy...`
+4. Copy the key. It'll look something like `AIzaSy...`
 
 That's your key. Keep it somewhere safe.
 
-### Step 2 — Install the background service
+### Step 2: Install the background service
 
 Open a terminal and run:
 
@@ -30,7 +30,7 @@ cd antigravity && bash install.sh
 
 This will set up a small background service on your Mac (`~/.zed_antigravity`) that starts automatically at login and restarts itself if it ever goes down. You only need to do this once.
 
-### Step 3 — Connect Zed
+### Step 3: Connect Zed
 
 1. Open Zed and go to **Settings → AI**
 2. Click **Add Provider** and choose **OpenAI Compatible**
@@ -68,7 +68,7 @@ rm -rf ~/.zed_antigravity
 
 - macOS (the background service uses launchd)
 - Python 3 (comes with macOS)
-- A Gemini API key — free at [aistudio.google.com](https://aistudio.google.com/app/apikey)
+- A Gemini API key (free at [aistudio.google.com](https://aistudio.google.com/app/apikey))
 
 ---
 
