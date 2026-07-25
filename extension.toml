@@ -1,0 +1,7 @@
+id = "antigravity"
+name = "Antigravity"
+version = "0.0.1"
+schema_version = 1
+authors = ["Scott Lexium"]
+description = "Brings Gemini support to Zed via Antigravity"
+repository = "https://github.com/scott-lexium/zed-antigravity"
