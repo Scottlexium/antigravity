@@ -1,77 +1,85 @@
 # Antigravity
 
-Antigravity brings Gemini AI into the Zed editor. It runs a lightweight background service on your machine that Zed talks to via its built-in custom AI provider support.
+Gemini in Zed. No subscriptions, no lock-in — just your own API key and the full power of Google's Gemini models running natively inside the editor.
+
+Google removed Gemini support from third-party editors, so this extension brings it back. It runs a small background service on your machine that Zed talks to through its built-in custom AI provider support. From there, everything works exactly like any other AI provider in Zed — inline edits, the assistant panel, the works.
 
 ---
 
-## How it works
+## Getting started
 
-A small Python server runs silently in the background on `localhost:8080`. It exposes an OpenAI-compatible API that Zed natively understands. Every chat message you send in Zed's Assistant Panel goes to this server, which forwards it to Google's Gemini via the Antigravity SDK and streams the response back.
+### Step 1 — Get a Gemini API key
 
-The server is managed by macOS's built-in `launchd` service manager, so it starts automatically when you log in and restarts itself if it ever crashes.
+You need a free Gemini API key from Google AI Studio.
 
----
+1. Go to [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click **Create API key**
+4. Copy the key — it'll look something like `AIzaSy...`
 
-## Installation
+That's your key. Keep it somewhere safe.
 
-Run this in your terminal:
+### Step 2 — Install the background service
+
+Open a terminal and run:
 
 ```bash
-curl -sL https://raw.githubusercontent.com/Scottlexium/antigravity/master/install.sh | bash
+git clone https://github.com/Scottlexium/antigravity
+cd antigravity && bash install.sh
 ```
 
-That's it. The script will:
-- Create a Python environment in `~/.zed_antigravity`
-- Install all dependencies
-- Register the background service so it starts at login
+This will set up a small background service on your Mac (`~/.zed_antigravity`) that starts automatically at login and restarts itself if it ever goes down. You only need to do this once.
 
----
+### Step 3 — Connect Zed
 
-## Zed Setup
-
-After running the installer, configure Zed once:
-
-1. Open **Zed Settings** → **AI**
-2. Click **Add Provider** → choose **OpenAI Compatible**
-3. Fill in:
+1. Open Zed and go to **Settings → AI**
+2. Click **Add Provider** and choose **OpenAI Compatible**
+3. Fill in the following:
    - **URL:** `http://127.0.0.1:8080/v1`
-   - **API Key:** Your Gemini API key ([get one here](https://aistudio.google.com/app/apikey))
+   - **API Key:** the Gemini key you copied in Step 1
    - **Model:** `antigravity-bridge`
-
-Open the Assistant Panel (`Cmd+Shift+A`) and start chatting.
+4. Open the Assistant Panel (`Cmd+Shift+A`) and start chatting
 
 ---
 
 ## Authentication options
 
-| Method | How |
-|--------|-----|
-| Gemini API Key (Zed UI) | Paste your key into Zed's API Key field |
-| Gemini API Key (terminal) | `export GEMINI_API_KEY=your-key` before starting the service |
-| Google Cloud OAuth | `gcloud auth application-default login` + `export GOOGLE_CLOUD_PROJECT=your-project` |
+You have three ways to authenticate. Pick whichever works best for you:
+
+| Method | How to use |
+|--------|------------|
+| **Gemini API Key (recommended)** | Paste your key into Zed's API Key field as described above |
+| **Environment variable** | `export GEMINI_API_KEY=your-key` before the service starts |
+| **Google Cloud OAuth** | Run `gcloud auth application-default login` once, then `export GOOGLE_CLOUD_PROJECT=your-project-id` |
 
 ---
 
-## Uninstall
+## Uninstalling
 
 ```bash
-launchctl unload ~/Library/LaunchAgents/com.scottlexium.antigravity.plist
+launchctl bootout "gui/$(id -u)" ~/Library/LaunchAgents/com.scottlexium.antigravity.plist
 rm ~/Library/LaunchAgents/com.scottlexium.antigravity.plist
 rm -rf ~/.zed_antigravity
 ```
 
 ---
 
-## Project layout
+## Requirements
 
-```
-antigravity/
-├── install.sh                          # One-shot setup script for users
-├── daemon/
-│   ├── server.py                       # The FastAPI proxy server
-│   ├── requirements.txt                # Python dependencies
-│   └── com.scottlexium.antigravity.plist   # macOS launchd service definition
-├── src/lib.rs                          # Zed extension Rust/Wasm core
-├── extension.toml                      # Extension manifest
-└── Cargo.toml
-```
+- macOS (the background service uses launchd)
+- Python 3 (comes with macOS)
+- A Gemini API key — free at [aistudio.google.com](https://aistudio.google.com/app/apikey)
+
+---
+
+## How it works
+
+The installer sets up a lightweight Python server at `localhost:8080`. It exposes an OpenAI-compatible API that Zed already understands. When you chat in the Zed assistant panel, your message goes to this local server, which passes it to Gemini via the official `google-antigravity` SDK, and streams the response back into Zed in real time.
+
+The background service is managed by macOS's built-in launchd, so it starts on login and stays running without any terminal windows open.
+
+---
+
+## License
+
+MIT

@@ -5,6 +5,7 @@ set -e
 PLIST_NAME="com.scottlexium.antigravity"
 PLIST_DST="$HOME/Library/LaunchAgents/$PLIST_NAME.plist"
 DAEMON_DIR="$HOME/.zed_antigravity"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo ""
 echo "  Antigravity for Zed — Setup"
@@ -39,7 +40,6 @@ echo "  ✓ Environment ready"
 mkdir -p "$HOME/Library/LaunchAgents"
 
 # Copy the plist from the local script directory (works for private repos)
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cp "$SCRIPT_DIR/daemon/com.scottlexium.antigravity.plist" "$PLIST_DST"
 
 # Stop any previous version gracefully
