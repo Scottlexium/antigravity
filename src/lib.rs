@@ -39,7 +39,7 @@ exec venv/bin/python server.py
 ".to_string();
         
         Ok(zed::Command {
-            command: "bash".to_string(),
+            command: "/bin/bash".to_string(),
             args: vec!["-c".to_string(), bootstrap_script],
             env: vec![],
         })
